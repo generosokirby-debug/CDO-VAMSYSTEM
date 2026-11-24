@@ -82,6 +82,7 @@ class CdoRecordController extends Controller
     private function rules(?CdoRecord $cdoRecord = null): array
     {
         return [
+            'employee_id' => ['required', 'string', 'max:40', Rule::unique('cdo_records', 'employee_id')->ignore($cdoRecord?->id)],
             'name' => ['required', 'string', 'max:120', 'regex:/^[\p{L} ]+$/u'],
             'email' => [
                 'required',

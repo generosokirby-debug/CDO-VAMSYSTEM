@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\CdoRecord;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,15 +11,17 @@ class CdoRecordTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_visitors_can_view_the_dashboard_without_signing_in(): void
+    public function test_admins_can_view_the_dashboard(): void
     {
-        $this->get(route('dashboard'))
+        $this->actingAs(User::factory()->create(['role' => 'Admin']))
+            ->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('Demo visitor');
+            ->assertSee('Dashboard Overview');
     }
 
-    public function test_visitors_can_search_cdo_records(): void
+    public function test_admins_can_search_employees(): void
     {
+        $this->actingAs(User::factory()->create(['role' => 'Admin']));
         $matchingRecord = CdoRecord::factory()->create([
             'name' => 'Ada Sample',
             'department' => 'Operations',
@@ -28,15 +31,17 @@ class CdoRecordTest extends TestCase
             'department' => 'Planning',
         ]);
 
-        $this->get(route('dashboard', ['search' => 'Operations']))
+        $this->get(route('employees.index', ['search' => 'Operations']))
             ->assertOk()
             ->assertSee($matchingRecord->name)
             ->assertDontSee('Grace Sample');
     }
 
-    public function test_visitors_can_create_cdo_records(): void
+    public function test_admins_can_create_cdo_records(): void
     {
+        $this->actingAs(User::factory()->create(['role' => 'Admin']));
         $this->post(route('cdos.store'), [
+            'employee_id' => 'EMP-100',
             'name' => 'Alex Sample',
             'email' => 'alex@gmail.com',
             'phone_number' => '09171234567',
@@ -55,6 +60,7 @@ class CdoRecordTest extends TestCase
 
     public function test_invalid_cdo_records_are_not_created(): void
     {
+        $this->actingAs(User::factory()->create(['role' => 'Admin']));
         $this->post(route('cdos.store'), [
             'name' => '',
             'email' => 'not-an-email',
@@ -69,6 +75,7 @@ class CdoRecordTest extends TestCase
 
     public function test_cdo_records_reject_non_letter_fields_and_non_gmail_addresses(): void
     {
+        $this->actingAs(User::factory()->create(['role' => 'Admin']));
         $this->post(route('cdos.store'), [
             'name' => 'Alex2',
             'email' => 'alex@example.test',
@@ -89,6 +96,7 @@ class CdoRecordTest extends TestCase
 
     public function test_phone_numbers_must_contain_eleven_digits(): void
     {
+        $this->actingAs(User::factory()->create(['role' => 'Admin']));
         $this->post(route('cdos.store'), [
             'name' => 'Alex Sample',
             'email' => 'alex@gmail.com',
@@ -106,6 +114,7 @@ class CdoRecordTest extends TestCase
 
     public function test_phone_numbers_must_start_with_the_philippine_mobile_prefix(): void
     {
+        $this->actingAs(User::factory()->create(['role' => 'Admin']));
         $this->post(route('cdos.store'), [
             'name' => 'Alex Sample',
             'email' => 'alex@gmail.com',
@@ -121,14 +130,16 @@ class CdoRecordTest extends TestCase
         $this->assertDatabaseCount('cdo_records', 0);
     }
 
-    public function test_visitors_can_update_cdo_records(): void
+    public function test_admins_can_update_cdo_records(): void
     {
+        $this->actingAs(User::factory()->create(['role' => 'Admin']));
         $record = CdoRecord::factory()->create([
             'name' => 'Old Sample',
             'email' => 'old@gmail.com',
         ]);
 
         $this->put(route('cdos.update', $record), [
+            'employee_id' => $record->employee_id,
             'name' => 'Updated Sample',
             'email' => $record->email,
             'phone_number' => '09181234567',
@@ -149,8 +160,9 @@ class CdoRecordTest extends TestCase
         ]);
     }
 
-    public function test_visitors_can_delete_cdo_records(): void
+    public function test_admins_can_delete_cdo_records(): void
     {
+        $this->actingAs(User::factory()->create(['role' => 'Admin']));
         $record = CdoRecord::factory()->create();
 
         $this->delete(route('cdos.destroy', $record))

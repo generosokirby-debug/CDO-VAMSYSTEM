@@ -31,6 +31,13 @@
 
                 <div class="grid gap-5 sm:grid-cols-2">
                     <div class="sm:col-span-2">
+                        <label for="employee_id" class="mb-2 block text-sm font-semibold text-slate-700">Employee ID</label>
+                        <input id="employee_id" name="employee_id" type="text" value="{{ old('employee_id', $cdoRecord->employee_id) }}" maxlength="40" required class="h-11 w-full rounded-lg border border-slate-300 px-3.5 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 @error('employee_id') border-rose-500 @enderror">
+                        @error('employee_id')
+                            <p class="mt-1.5 text-sm text-rose-600" role="alert">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="sm:col-span-2">
                         <label for="name" class="mb-2 block text-sm font-semibold text-slate-700">Full name</label>
                         <input id="name" name="name" type="text" value="{{ old('name', $cdoRecord->name) }}" maxlength="120" pattern="[\p{L} ]+" title="Use letters and spaces only." oninput="this.value = this.value.replace(/[^\p{L} ]/gu, '')" required autofocus class="h-11 w-full rounded-lg border border-slate-300 px-3.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 @error('name') border-rose-500 @enderror" placeholder="e.g. Alex Sample">
                         @error('name')

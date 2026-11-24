@@ -18,6 +18,7 @@ class CdoRecordFactory extends Factory
     public function definition(): array
     {
         return [
+            'employee_id' => 'EMP-'.fake()->unique()->numerify('######'),
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'phone_number' => fake()->optional()->numerify('09#########'),

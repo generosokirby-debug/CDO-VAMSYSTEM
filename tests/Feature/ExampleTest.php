@@ -10,11 +10,11 @@ class ExampleTest extends TestCase
     /**
      * A basic test example.
      */
-    public function test_the_application_redirects_to_the_dashboard(): void
+    public function test_guest_requests_to_the_admin_dashboard_redirect_to_login(): void
     {
         $response = $this->get('/');
 
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/login');
     }
 
     public function test_the_login_page_returns_a_successful_response(): void
