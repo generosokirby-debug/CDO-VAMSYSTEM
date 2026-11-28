@@ -71,6 +71,10 @@ class CdoRecordController extends Controller
 
     public function destroy(CdoRecord $cdoRecord): RedirectResponse
     {
+        if ($cdoRecord->vehicles()->exists()) {
+            return back()->withErrors(['record' => 'Remove assigned vehicles first.']);
+        }
+
         $cdoRecord->delete();
 
         return redirect()->route('dashboard')->with('status', 'CDO record deleted.');
@@ -104,11 +108,11 @@ class CdoRecordController extends Controller
     private function messages(): array
     {
         return [
-            'name.regex' => 'The name may only contain letters and spaces.',
-            'email.regex' => 'The email address must end with @gmail.com.',
-            'phone_number.regex' => 'The phone number must be an 11-digit Philippine mobile number starting with 09.',
-            'department.regex' => 'The department may only contain letters and spaces.',
-            'position.regex' => 'The position may only contain letters and spaces.',
+            'name.regex' => 'Use letters and spaces only.',
+            'email.regex' => 'Use a Gmail address ending in @gmail.com.',
+            'phone_number.regex' => 'Use an 11-digit mobile number starting with 09.',
+            'department.regex' => 'Use letters and spaces only.',
+            'position.regex' => 'Use letters and spaces only.',
         ];
     }
 }

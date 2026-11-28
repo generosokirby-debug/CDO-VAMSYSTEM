@@ -13,7 +13,7 @@
                 <h1 class="text-2xl font-bold text-slate-900">{{ $isEditing ? 'Edit Employee' : 'Register Employee' }}</h1>
                 <p class="mt-1 text-sm text-slate-500">Enter employee information and account status.</p>
             </div>
-            <form method="POST" action="{{ $isEditing ? route('employees.update', $employee) : route('employees.store') }}" class="grid gap-5 p-6 sm:grid-cols-2">
+            <form method="POST" action="{{ $isEditing ? route('employees.update', $employee) : route('employees.store') }}" data-alert-action="{{ $isEditing ? 'update' : 'create' }}" class="grid gap-5 p-6 sm:grid-cols-2">
                 @csrf
                 @if ($isEditing)
                     @method('PUT')

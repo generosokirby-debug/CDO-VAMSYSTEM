@@ -17,15 +17,6 @@
         </a>
     </div>
 
-    @if (session('status'))
-        <div role="status" class="mb-6 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/>
-            </svg>
-            {{ session('status') }}
-        </div>
-    @endif
-
     <div class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex items-start justify-between">
@@ -160,7 +151,7 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-end gap-2">
                                         <a href="{{ route('cdos.edit', $record) }}" class="rounded-lg px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-50">Edit</a>
-                                        <form method="POST" action="{{ route('cdos.destroy', $record) }}" onsubmit="return confirm('Delete this sample CDO record?')">
+                                        <form method="POST" action="{{ route('cdos.destroy', $record) }}" data-alert-action="delete">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="rounded-lg px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50">Delete</button>

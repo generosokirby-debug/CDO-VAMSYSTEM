@@ -13,7 +13,7 @@
                 <h1 class="text-2xl font-bold text-slate-900">{{ $isEditing ? 'Edit Vehicle' : 'Register Vehicle' }}</h1>
                 <p class="mt-1 text-sm text-slate-500">Pass expiration is calculated as the registration date plus five years.</p>
             </div>
-            <form method="POST" action="{{ $isEditing ? route('vehicles.update', $vehicle) : route('vehicles.store') }}" class="grid gap-5 p-6 sm:grid-cols-2">
+            <form method="POST" action="{{ $isEditing ? route('vehicles.update', $vehicle) : route('vehicles.store') }}" data-alert-action="{{ $isEditing ? 'update' : 'create' }}" class="grid gap-5 p-6 sm:grid-cols-2">
                 @csrf
                 @if ($isEditing)
                     @method('PUT')

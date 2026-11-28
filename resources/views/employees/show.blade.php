@@ -4,9 +4,6 @@
 @section('breadcrumb', 'Employee Details')
 
 @section('content')
-    @if (session('status'))
-        <div role="status" class="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
-    @endif
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <a href="{{ route('employees.index') }}" class="text-sm font-semibold text-slate-500 hover:text-slate-900">← Employees</a>

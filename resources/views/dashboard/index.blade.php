@@ -5,8 +5,44 @@
 
 @section('content')
     @php
-        $registrationMaximum = max(1, $registrationChart->max('count'));
-        $scanMaximum = max(1, $scanChart->max(fn (array $day) => max($day['successful'], $day['denied'])));
+        $registrationDemoCounts = [4, 7, 5, 9, 6, 11, 8];
+        $hasRegistrationData = $registrationChart->contains(fn (array $day): bool => $day['count'] > 0);
+        $registrationChartData = $registrationChart->map(fn (array $day, int $index): array => [
+            'label' => $day['label'],
+            'count' => $hasRegistrationData ? $day['count'] : $registrationDemoCounts[$index],
+        ]);
+        $registrationMaximum = max(1, $registrationChartData->max('count'));
+
+        $scanDemoValues = [
+            ['successful' => 12, 'denied' => 4],
+            ['successful' => 16, 'denied' => 3],
+            ['successful' => 13, 'denied' => 6],
+            ['successful' => 22, 'denied' => 5],
+            ['successful' => 18, 'denied' => 7],
+            ['successful' => 24, 'denied' => 4],
+            ['successful' => 20, 'denied' => 8],
+        ];
+        $hasScanData = $scanChart->contains(fn (array $day): bool => $day['successful'] + $day['denied'] > 0);
+        $scanChartData = $scanChart->map(fn (array $day, int $index): array => [
+            'label' => $day['label'],
+            'successful' => $hasScanData ? $day['successful'] : $scanDemoValues[$index]['successful'],
+            'denied' => $hasScanData ? $day['denied'] : $scanDemoValues[$index]['denied'],
+        ]);
+        $scanMaximum = max(1, $scanChartData->max(fn (array $day) => max($day['successful'], $day['denied'])));
+
+        $passChartTotal = $activePasses + $expiredPasses;
+        $hasPassData = $passChartTotal > 0;
+        $passActiveValue = $hasPassData ? $activePasses : 68;
+        $passExpiredValue = $hasPassData ? $expiredPasses : 32;
+        $passChartTotal = $passActiveValue + $passExpiredValue;
+        $passActivePercent = round($passActiveValue / $passChartTotal * 100, 1);
+
+        $scanTodayTotal = $successfulScansToday + $deniedScansToday;
+        $hasTodayScanData = $scanTodayTotal > 0;
+        $donutSuccessfulValue = $hasTodayScanData ? $successfulScansToday : 74;
+        $donutDeniedValue = $hasTodayScanData ? $deniedScansToday : 26;
+        $scanTodayTotal = $donutSuccessfulValue + $donutDeniedValue;
+        $scanSuccessPercent = round($donutSuccessfulValue / $scanTodayTotal * 100, 1);
     @endphp
 
     <div class="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -20,10 +56,6 @@
             <a href="{{ route('vehicles.create') }}" class="inline-flex h-11 items-center justify-center rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white transition hover:bg-blue-800">Register Vehicle</a>
         </div>
     </div>
-
-    @if (session('status'))
-        <div role="status" class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">{{ session('status') }}</div>
-    @endif
 
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         @foreach ([
@@ -42,47 +74,131 @@
     </div>
 
     <div class="mt-6 grid gap-5 xl:grid-cols-2">
-        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-chart-enter motion-reduce:animate-none sm:p-6">
             <div class="flex items-center justify-between">
                 <div>
                     <h2 class="font-bold text-slate-900">Vehicle Registration</h2>
-                    <p class="mt-1 text-sm text-slate-500">New registrations over the past seven days</p>
+                    <p class="mt-1 text-sm text-slate-500">{{ $hasRegistrationData ? 'New registrations over the past seven days' : 'Sample data shown; no registrations in this period' }}</p>
                 </div>
                 <a href="{{ route('vehicles.index') }}" class="text-sm font-semibold text-blue-700 hover:text-blue-800">View vehicles</a>
             </div>
             <div class="mt-6 flex h-44 items-end gap-3 border-b border-slate-100 pb-2">
-                @foreach ($registrationChart as $day)
+                @foreach ($registrationChartData as $day)
                     <div class="flex h-full flex-1 flex-col items-center justify-end gap-2">
                         <span class="text-xs font-semibold text-slate-600">{{ $day['count'] }}</span>
-                        <div class="w-full max-w-10 rounded-t-md bg-blue-600" style="height: {{ (int) round($day['count'] / $registrationMaximum * 100) }}%"></div>
+                        <div class="w-full max-w-10 origin-bottom rounded-t-md bg-blue-600 animate-chart-grow motion-reduce:animate-none" style="height: {{ (int) round($day['count'] / $registrationMaximum * 100) }}%; animation-delay: {{ $loop->index * 75 }}ms"></div>
                         <span class="text-[11px] text-slate-400">{{ $day['label'] }}</span>
                     </div>
                 @endforeach
             </div>
         </section>
 
-        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-chart-enter motion-reduce:animate-none sm:p-6" style="animation-delay: 100ms">
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="font-bold text-slate-900">Gate Scan Activity</h2>
-                    <p class="mt-1 text-sm text-slate-500">Recorded successful and denied scans</p>
+                    <h2 class="font-bold text-slate-900">Gate Scan Trend</h2>
+                    <p class="mt-1 text-sm text-slate-500">{{ $hasScanData ? 'Successful and denied scans over the past seven days' : 'Sample data shown; no scans in this period' }}</p>
                 </div>
                 <a href="{{ route('logs.index') }}" class="text-sm font-semibold text-blue-700 hover:text-blue-800">View logs</a>
             </div>
             <div class="mt-4 flex gap-4 text-xs font-medium text-slate-500">
-                <span class="inline-flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full bg-emerald-500"></i>Successful</span>
-                <span class="inline-flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full bg-rose-500"></i>Denied</span>
+                <span class="inline-flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full bg-blue-500"></i>Successful</span>
+                <span class="inline-flex items-center gap-2"><i class="h-2.5 w-2.5 rounded-full bg-red-500"></i>Denied</span>
             </div>
-            <div class="mt-3 flex h-36 items-end gap-3 border-b border-slate-100 pb-2">
-                @foreach ($scanChart as $day)
-                    <div class="flex h-full flex-1 flex-col items-center justify-end gap-2">
-                        <div class="flex h-full w-full max-w-10 items-end gap-1">
-                            <div class="w-1/2 rounded-t bg-emerald-500" style="height: {{ (int) round($day['successful'] / $scanMaximum * 100) }}%"></div>
-                            <div class="w-1/2 rounded-t bg-rose-500" style="height: {{ (int) round($day['denied'] / $scanMaximum * 100) }}%"></div>
-                        </div>
-                        <span class="text-[11px] text-slate-400">{{ $day['label'] }}</span>
+            <div class="mt-3">
+                <svg class="h-36 w-full overflow-visible" viewBox="0 0 280 140" role="img" aria-label="Line chart showing successful and denied gate scans over the past seven days">
+                    <path d="M20 20H260M20 70H260M20 120H260" stroke="#e2e8f0" stroke-dasharray="4 5" />
+                    <polyline
+                        points="@foreach ($scanChartData as $index => $day){{ 20 + $index * 40 }},{{ 120 - (int) round($day['successful'] / $scanMaximum * 100) }} @endforeach"
+                        fill="none"
+                        stroke="#3b82f6"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        pathLength="1000"
+                        stroke-dasharray="1000"
+                        class="animate-chart-line motion-reduce:animate-none"
+                    />
+                    <polyline
+                        points="@foreach ($scanChartData as $index => $day){{ 20 + $index * 40 }},{{ 120 - (int) round($day['denied'] / $scanMaximum * 100) }} @endforeach"
+                        fill="none"
+                        stroke="#ef4444"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        pathLength="1000"
+                        stroke-dasharray="1000"
+                        class="animate-chart-line motion-reduce:animate-none"
+                        style="animation-delay: 150ms"
+                    />
+                    @foreach ($scanChartData as $index => $day)
+                        <circle cx="{{ 20 + $index * 40 }}" cy="{{ 120 - (int) round($day['successful'] / $scanMaximum * 100) }}" r="3" fill="#3b82f6" />
+                        <circle cx="{{ 20 + $index * 40 }}" cy="{{ 120 - (int) round($day['denied'] / $scanMaximum * 100) }}" r="3" fill="#ef4444" />
+                    @endforeach
+                </svg>
+                <div class="flex justify-between px-1 text-[11px] text-slate-400">
+                    @foreach ($scanChartData as $day)
+                        <span>{{ $day['label'] }}</span>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="mt-5 grid gap-5 xl:grid-cols-2">
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-chart-enter motion-reduce:animate-none sm:p-6" style="animation-delay: 200ms">
+            <div>
+                <h2 class="font-bold text-slate-900">Vehicle Pass Status</h2>
+                <p class="mt-1 text-sm text-slate-500">{{ $hasPassData ? 'Active and expired passes' : 'Sample data shown; no active or expired passes' }}</p>
+            </div>
+            <div class="mt-6 flex flex-col items-center gap-6 sm:flex-row">
+                <div
+                    class="size-40 shrink-0 rounded-full animate-chart-pop motion-reduce:animate-none"
+                    role="img"
+                    aria-label="Pie chart: {{ number_format($passActiveValue) }} active passes and {{ number_format($passExpiredValue) }} expired passes{{ $hasPassData ? '' : ', sample data' }}"
+                    style="background: conic-gradient(#10b981 0% {{ $passActivePercent }}%, #f43f5e {{ $passActivePercent }}% 100%)"
+                ></div>
+                <div class="grid w-full gap-4">
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="inline-flex items-center gap-2 text-sm text-slate-600"><i class="size-3 rounded-sm bg-emerald-500"></i>Active</span>
+                        <span class="font-semibold text-slate-900">{{ number_format($passActiveValue) }}</span>
                     </div>
-                @endforeach
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="inline-flex items-center gap-2 text-sm text-slate-600"><i class="size-3 rounded-sm bg-rose-500"></i>Expired</span>
+                        <span class="font-semibold text-slate-900">{{ number_format($passExpiredValue) }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-chart-enter motion-reduce:animate-none sm:p-6" style="animation-delay: 300ms">
+            <div>
+                <h2 class="font-bold text-slate-900">Today's Scan Outcomes</h2>
+                <p class="mt-1 text-sm text-slate-500">{{ $hasTodayScanData ? 'Successful and denied gate scans' : 'Sample data shown; no scans recorded today' }}</p>
+            </div>
+            <div class="mt-6 flex flex-col items-center gap-6 sm:flex-row">
+                <div class="relative size-40 shrink-0 animate-chart-pop motion-reduce:animate-none">
+                    <div
+                        class="size-full rounded-full"
+                        role="img"
+                        aria-label="Donut chart: {{ number_format($donutSuccessfulValue) }} successful scans and {{ number_format($donutDeniedValue) }} denied scans{{ $hasTodayScanData ? '' : ', sample data' }}"
+                        style="background: conic-gradient(#3b82f6 0% {{ $scanSuccessPercent }}%, #ef4444 {{ $scanSuccessPercent }}% 100%)"
+                    ></div>
+                    <div class="absolute inset-5 flex flex-col items-center justify-center rounded-full bg-white">
+                        <span class="text-2xl font-bold text-slate-900">{{ number_format($scanTodayTotal) }}</span>
+                        <span class="text-xs text-slate-500">total scans</span>
+                    </div>
+                </div>
+                <div class="grid w-full gap-4">
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="inline-flex items-center gap-2 text-sm text-slate-600"><i class="size-3 rounded-sm bg-emerald-500"></i>Successful</span>
+                        <span class="font-semibold text-slate-900">{{ number_format($donutSuccessfulValue) }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="inline-flex items-center gap-2 text-sm text-slate-600"><i class="size-3 rounded-sm bg-rose-500"></i>Denied</span>
+                        <span class="font-semibold text-slate-900">{{ number_format($donutDeniedValue) }}</span>
+                    </div>
+                </div>
             </div>
         </section>
     </div>

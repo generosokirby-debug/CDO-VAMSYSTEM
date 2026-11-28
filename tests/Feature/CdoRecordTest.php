@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\CdoRecord;
 use App\Models\User;
+use App\Models\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -85,10 +86,10 @@ class CdoRecordTest extends TestCase
             'status' => 'Active',
         ])
             ->assertSessionHasErrors([
-                'name' => 'The name may only contain letters and spaces.',
-                'email' => 'The email address must end with @gmail.com.',
-                'department' => 'The department may only contain letters and spaces.',
-                'position' => 'The position may only contain letters and spaces.',
+                'name' => 'Use letters and spaces only.',
+                'email' => 'Use a Gmail address ending in @gmail.com.',
+                'department' => 'Use letters and spaces only.',
+                'position' => 'Use letters and spaces only.',
             ]);
 
         $this->assertDatabaseCount('cdo_records', 0);
@@ -106,7 +107,7 @@ class CdoRecordTest extends TestCase
             'status' => 'Active',
         ])
             ->assertSessionHasErrors([
-                'phone_number' => 'The phone number must be an 11-digit Philippine mobile number starting with 09.',
+                'phone_number' => 'Use an 11-digit mobile number starting with 09.',
             ]);
 
         $this->assertDatabaseCount('cdo_records', 0);
@@ -124,7 +125,7 @@ class CdoRecordTest extends TestCase
             'status' => 'Active',
         ])
             ->assertSessionHasErrors([
-                'phone_number' => 'The phone number must be an 11-digit Philippine mobile number starting with 09.',
+                'phone_number' => 'Use an 11-digit mobile number starting with 09.',
             ]);
 
         $this->assertDatabaseCount('cdo_records', 0);
@@ -170,5 +171,30 @@ class CdoRecordTest extends TestCase
             ->assertSessionHas('status', 'CDO record deleted.');
 
         $this->assertModelMissing($record);
+    }
+
+    public function test_cdo_records_with_assigned_vehicles_cannot_be_deleted(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'Admin']));
+        $record = CdoRecord::factory()->create();
+        $vehicle = Vehicle::create([
+            'employee_id' => $record->id,
+            'plate_number' => 'CDO-TEST-1',
+            'make' => 'Honda',
+            'model' => 'City',
+            'color' => 'Blue',
+            'vehicle_type' => 'Sedan',
+            'registration_date' => '2025-01-01',
+            'expiration_date' => '2030-01-01',
+            'status' => 'Active',
+        ]);
+
+        $this->from(route('dashboard'))
+            ->delete(route('cdos.destroy', $record))
+            ->assertRedirect(route('dashboard'))
+            ->assertSessionHasErrors(['record' => 'Remove assigned vehicles first.']);
+
+        $this->assertModelExists($record);
+        $this->assertModelExists($vehicle);
     }
 }

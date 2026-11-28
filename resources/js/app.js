@@ -1,3 +1,5 @@
+import './alert.js';
+
 const sidebar = document.getElementById('dashboard-sidebar');
 const sidebarToggle = document.getElementById('sidebar-toggle');
 const sidebarOverlay = document.getElementById('sidebar-overlay');

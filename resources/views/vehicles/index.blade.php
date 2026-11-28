@@ -14,13 +14,6 @@
             <a href="{{ route('vehicles.create') }}" class="inline-flex h-11 items-center rounded-lg bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800">Register Vehicle</a>
         </div>
     </div>
-    @if (session('status'))
-        <div role="status" class="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
-    @endif
-    @if ($errors->any())
-        <div role="alert" class="mb-5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">Please review the highlighted form errors.</div>
-    @endif
-
     <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <form method="GET" action="{{ route('vehicles.index') }}" class="grid gap-3 border-b border-slate-100 p-5 sm:grid-cols-4">
             <label class="sr-only" for="vehicle-search">Search vehicles</label>

@@ -4,9 +4,6 @@
 @section('breadcrumb', 'Vehicle Details')
 
 @section('content')
-    @if (session('status'))
-        <div role="status" class="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
-    @endif
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <a href="{{ route('vehicles.index') }}" class="text-sm font-semibold text-slate-500 hover:text-slate-900">← Vehicle Registry</a>
@@ -35,7 +32,7 @@
     </section>
     <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="font-bold text-slate-900">Pass Status</h2>
-        <form method="POST" action="{{ route('vehicles.status', $vehicle) }}" class="mt-4 flex flex-wrap items-end gap-3">
+        <form method="POST" action="{{ route('vehicles.status', $vehicle) }}" data-alert-action="update" class="mt-4 flex flex-wrap items-end gap-3">
             @csrf
             <label class="text-sm font-medium text-slate-700">Change status
                 <select name="status" class="mt-1 block h-10 rounded-lg border border-slate-300 bg-white px-3">

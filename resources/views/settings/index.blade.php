@@ -8,13 +8,6 @@
         <h1 class="text-3xl font-bold tracking-tight text-slate-900">Settings &amp; Permissions</h1>
         <p class="mt-2 text-sm text-slate-500">Manage user accounts and page access. Super Admin protections cannot be changed here.</p>
     </div>
-    @if (session('status'))
-        <div role="status" class="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
-    @endif
-    @if ($errors->any())
-        <div role="alert" class="mb-5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">Please check the form and try again.</div>
-    @endif
-
     <nav class="sticky top-16 z-10 mb-6 flex gap-2 overflow-x-auto rounded-xl border border-slate-200 bg-white p-2 shadow-sm" aria-label="Settings sections">
         <a href="#user-accounts" class="whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">User Accounts</a>
         <a href="#roles-permissions" class="whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Roles &amp; Permissions</a>
@@ -25,7 +18,7 @@
         <div class="border-b border-slate-100 px-5 py-4">
             <h2 class="font-bold text-slate-900">User Accounts</h2>
         </div>
-        <form method="POST" action="{{ route('settings.users.store') }}" class="grid gap-3 border-b border-slate-100 bg-slate-50/70 p-5 sm:grid-cols-2 lg:grid-cols-6">
+        <form method="POST" action="{{ route('settings.users.store') }}" data-alert-action="create" class="grid gap-3 border-b border-slate-100 bg-slate-50/70 p-5 sm:grid-cols-2 lg:grid-cols-6">
             @csrf
             <input name="name" value="{{ old('name') }}" required placeholder="Full name" aria-label="New user's full name" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm lg:col-span-2">
             <input name="email" type="email" value="{{ old('email') }}" required placeholder="Email address" aria-label="New user's email" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm lg:col-span-2">
@@ -76,7 +69,7 @@
                     @if ($account->role === 'Super Admin')
                         <div class="text-sm font-semibold text-slate-600">Super Admin · {{ $account->status }} <span class="text-xs text-slate-400">Protected</span></div>
                     @else
-                        <form method="POST" action="{{ route('settings.users.update', $account) }}" class="flex flex-wrap items-center gap-2">
+                        <form method="POST" action="{{ route('settings.users.update', $account) }}" data-alert-action="update" class="flex flex-wrap items-center gap-2">
                             @csrf
                             @method('PATCH')
                             @if ($account->is(auth()->user()))
@@ -126,7 +119,7 @@
         <div class="divide-y divide-slate-100">
             @foreach ($roles as $role)
                 @php($rolePermissions = $permissions->get($role->role, collect())->keyBy('module'))
-                <form method="POST" action="{{ route('settings.permissions.update') }}" class="grid gap-4 p-5 lg:grid-cols-[140px_1fr_auto] lg:items-center">
+                <form method="POST" action="{{ route('settings.permissions.update') }}" data-alert-action="update" class="grid gap-4 p-5 lg:grid-cols-[140px_1fr_auto] lg:items-center">
                     @csrf
                     <input type="hidden" name="role" value="{{ $role->role }}">
                     <h3 class="font-bold text-slate-900">{{ $role->role }}</h3>
@@ -159,7 +152,7 @@
         </div>
         @forelse ($users->getCollection()->whereIn('role', ['Guard', 'Employee']) as $account)
             @php($rolePermissions = $permissions->get($account->role, collect())->where('allowed', true)->pluck('module'))
-            <form method="POST" action="{{ route('settings.users.overrides', $account) }}" class="flex flex-col gap-4 border-b border-slate-100 p-5 last:border-0 lg:flex-row lg:items-center lg:justify-between">
+            <form method="POST" action="{{ route('settings.users.overrides', $account) }}" data-alert-action="update" class="flex flex-col gap-4 border-b border-slate-100 p-5 last:border-0 lg:flex-row lg:items-center lg:justify-between">
                 @csrf
                 <div>
                     <p class="font-semibold text-slate-900">{{ $account->name }}</p>

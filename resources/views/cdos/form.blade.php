@@ -23,7 +23,7 @@
                 <p class="mt-2 text-sm text-slate-500">For testing only. Please use fictional information.</p>
             </div>
 
-            <form method="POST" action="{{ $isEditing ? route('cdos.update', $cdoRecord) : route('cdos.store') }}" class="space-y-5 px-6 py-7 sm:px-8">
+            <form method="POST" action="{{ $isEditing ? route('cdos.update', $cdoRecord) : route('cdos.store') }}" data-alert-action="{{ $isEditing ? 'update' : 'create' }}" class="space-y-5 px-6 py-7 sm:px-8">
                 @csrf
                 @if ($isEditing)
                     @method('PUT')

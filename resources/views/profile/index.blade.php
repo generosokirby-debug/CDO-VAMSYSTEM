@@ -8,12 +8,6 @@
         <h1 class="text-3xl font-bold tracking-tight text-slate-900">My Profile</h1>
         <p class="mt-2 text-sm text-slate-500">Update your account information and password.</p>
     </div>
-    @if (session('status'))
-        <div role="status" class="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
-    @endif
-    @if ($errors->any())
-        <div role="alert" class="mb-5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">Please check the form and try again.</div>
-    @endif
     <div class="grid max-w-4xl gap-6 lg:grid-cols-2">
         <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 class="font-bold text-slate-900">Account Details</h2>
@@ -21,7 +15,7 @@
                 <div><dt class="text-xs font-bold uppercase text-slate-400">Role</dt><dd class="mt-1 font-semibold text-slate-800">{{ $user->role }}</dd></div>
                 <div><dt class="text-xs font-bold uppercase text-slate-400">Account Status</dt><dd class="mt-1 font-semibold text-slate-800">{{ $user->status }}</dd></div>
             </dl>
-            <form method="POST" action="{{ route('profile.update') }}" class="mt-5 space-y-4">
+            <form method="POST" action="{{ route('profile.update') }}" data-alert-action="update" class="mt-5 space-y-4">
                 @csrf
                 @method('PATCH')
                 <div>
@@ -38,7 +32,7 @@
 
         <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 class="font-bold text-slate-900">Change Password</h2>
-            <form method="POST" action="{{ route('profile.password') }}" class="mt-5 space-y-4">
+            <form method="POST" action="{{ route('profile.password') }}" data-alert-action="update" class="mt-5 space-y-4">
                 @csrf
                 @method('PUT')
                 <div>
